@@ -3,7 +3,8 @@ library(CircStats)
 
 
 #Define a formula to convert degrees of visual angle to pixels.
-#This formula will return a value which is the number of pixels away from the center of the display, which
+#This formula will return a value which is the number of pixels away 
+#from the center of the display, which
 #will then need to be adjusted using the second formula in this script.
 pixel_conversion_formula<-function(data,deg_per_pix){
   #Define variables needed for the calculation:
@@ -16,7 +17,8 @@ pixel_conversion_formula<-function(data,deg_per_pix){
   return(size_in_pix)
 }
 
-#Takes pairs of x & y pixel values and shifts their origins to the upper left hand corner of the monitor
+#Takes pairs of x & y pixel values and shifts their origins to the upper
+#left hand corner of the monitor
 convert_to_origin_formula<-function(x,y){
   original_horizontal_coordinate<-840 # The value of the pixel at the horizontal locaiton of the original origin for this data
   original_vertical_coordinate<-525 # The value of the pixel at the vertical location of the original origin for this data
