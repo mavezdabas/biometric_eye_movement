@@ -1,11 +1,12 @@
 #Install needed libraries:
+install.packages("CircStats")
 library(CircStats)
 
 
 #Define a formula to convert degrees of visual angle to pixels.
 #This formula will return a value which is the number of pixels away 
 #from the center of the display, which will then need to be adjusted using the second formula in this script.
-pixel_conversion_formula<-function(data,deg_per_pix){
+pixel_conversion_formula<-function(data){
   #Define variables needed for the calculation:
   d=55 #Distance between viewers and monitor in cm. Don't modify this.
   h=297 #Monitor height in cm. Don't modify this.
@@ -26,4 +27,6 @@ convert_to_origin_formula<-function(x,y){
   converted_vertical_coordinate<-y+original_vertical_coordinate #Adds the re-centering adjustment to the vertical value in the input tuple.
   output<-cbind(converted_horizontal_coordinate,converted_vertical_coordinate) # Generate a tuple of converted coordinate values.
   return(output)
+  #return(converted_horizontal_coordinate)
+  #return(converted_vertical_coordinate)
 }
