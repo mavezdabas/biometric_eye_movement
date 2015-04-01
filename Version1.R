@@ -23,7 +23,7 @@ completeFile <- function(directory,id = 1:306){
 #copydataEye_1 <- dataEye_1
 
 #This is a subset of the with first 50 files
-dataVersion_1 <- completeFile(directory.dummy,id = 1:50)
+dataVersion_1 <- completeFile(directory.dummy,id = 1:306)
 
 #Function defined as pixel_conversion_formula
 #Input: Degree X and Y from the specified datasets
@@ -33,7 +33,7 @@ dataVersion_1 <- completeFile(directory.dummy,id = 1:50)
 dataVersion_1$X.PIXEL <- pixel_conversion_formula(dataVersion_1$X.DEGREE)
 dataVersion_1$Y.PIXEL <- pixel_conversion_formula(dataVersion_1$Y.DEGREE)
 head(dataVersion_1)
-
+tail(dataVersion_1)
 #Function defined as convert_to_origin_formula
 #Input: Takes pairs of x & y pixel values from the dataset which we
 #calculated using the function 1
