@@ -41,9 +41,8 @@ head(dataVersion_1)
 #monitor. Works by adding a constant to the pixel coordinate 
 #value for each dimension that re-centers them with respect to the 
 #upper-left corner of the display treated as the origin (0,0).
-dataVersion_1$XY<- convert_to_origin_formula(dataVersion_1$X.PIXEL,dataVersion_1$Y.PIXEL)
-
-
+dataVersion_1$X_original <- convert_to_origin_formula_x(dataVersion_1$X.PIXEL)
+dataVersion_1$Y_original <- convert_to_origin_formula_y(dataVersion_1$Y.PIXEL)
 
 
 
