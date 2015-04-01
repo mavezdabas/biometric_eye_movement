@@ -23,10 +23,32 @@ pixel_conversion_formula<-function(data){
 convert_to_origin_formula<-function(x,y){
   original_horizontal_coordinate<-840 # The value of the pixel at the horizontal locaiton of the original origin for this data. Don't modify this.
   original_vertical_coordinate<-525 # The value of the pixel at the vertical location of the original origin for this data. Don't modify this.
-  converted_horizontal_coordinate<-x+original_horizontal_coordinate #Adds the re-centering adjustment to the horizontal value in the input tuple.
-  converted_vertical_coordinate<-y+original_vertical_coordinate #Adds the re-centering adjustment to the vertical value in the input tuple.
-  output<-cbind(converted_horizontal_coordinate,converted_vertical_coordinate) # Generate a tuple of converted coordinate values.
+  con_hori_crd<-x+original_horizontal_coordinate #Adds the re-centering adjustment to the horizontal value in the input tuple.
+  con_verti_crd<-y+original_vertical_coordinate #Adds the re-centering adjustment to the vertical value in the input tuple.
+  output<-cbind(con_hori_crd,con_verti_crd) # Generate a tuple of converted coordinate values.
   return(output)
   #return(converted_horizontal_coordinate)
   #return(converted_vertical_coordinate)
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
