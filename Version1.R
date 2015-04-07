@@ -32,7 +32,7 @@ dataVersion_1 <- completeFile(directory.dummy,id = 1:306)
 #Creating new column X.PIXEL and Y.PIXEL in the dataset
 dataVersion_1$X.PIXEL <- pixel_conversion_formula(dataVersion_1$X.DEGREE)
 dataVersion_1$Y.PIXEL <- pixel_conversion_formula(dataVersion_1$Y.DEGREE)
-head(dataVersion_1)
+dataeye <- head(dataVersion_1)
 tail(dataVersion_1)
 #Function defined as convert_to_origin_formula
 #Input: Takes pairs of x & y pixel values from the dataset which we
@@ -44,6 +44,9 @@ tail(dataVersion_1)
 dataVersion_1$X_original <- convert_to_origin_formula_x(dataVersion_1$X.PIXEL)
 dataVersion_1$Y_original <- convert_to_origin_formula_y(dataVersion_1$Y.PIXEL)
 
+str(dataVersion_1$VALIDITY)
+
+print(object.size(dataVersion_1),units = "Mb")
 
 
 
