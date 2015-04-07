@@ -13,10 +13,12 @@ library(dplyr)
 #On DR's work system:
 #directory.dummy <- "/Users/Dylan/Desktop/git_locals/StatisticsForBigData-/eyemovement_data/BioEye2015_DevSets/RAN_30min_dv"
 #On DR's home system:
-directory.dummy <- "/Users/dylanrose/Desktop/StatisticsForBigData-/eyemovement_data/BioEye2015_DevSets/RAN_30min_dv"
+random_files <- "/Users/dylanrose/Desktop/StatisticsForBigData-/eyemovement_data/BioEye2015_DevSets/RAN_30min_dv"
+reading_files<- "/Users/dylanrose/Desktop/StatisticsForBigData-/eyemovement_data/BioEye2015_DevSets/TEX_30min_dv"
 
 #Get all the names in the data folder
-files_list<-list.files(directory.dummy,full.names=TRUE)
+random_files_list<-list.files(random_files,full.names=TRUE)
+reading_files_list<-list.files(reading_files,full.names=TRUE)
 
 #Define a function to parse the name of text files of data and return subject/trial/condition information
 #from the filename.
@@ -139,6 +141,11 @@ final_wrapper<-function(text_file){
 }
 
 ####With these functions defined, generate the actual data for the experiment using a faster APPLY method on all of the potential data files######
-system.time(eyemovement_data_list<-lapply(files_list,final_wrapper))
-output<-as.data.frame(do.call(rbind,eyemovement_data_list))
-
+random_eyemovement_data_list<-lapply(random_files_list,final_wrapper)
+random_eyemovement_output<-as.data.frame(do.call(rbind,random_eyemovement_data_list))
+condition<-rep("random",length(random_eyemovement_output$V1))
+random_eyemovement_output<-cbind(random_eyemovement_output,condition)
+reading_eyemovement_data_list<-lapply(reading_files_list,final_wrapper)
+reading_eyemovement_output<-as.data.frame(do.call(rbind,reading_eyemovement_data_list))
+condition<-rep("reading",length(random_eyemovement_output$V1))
+reading_eyemovement_output<-cbind(reading_eyemovement_output,condition)
