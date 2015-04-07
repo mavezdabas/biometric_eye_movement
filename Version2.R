@@ -12,9 +12,12 @@ library(dplyr)
 
 #On DR's work system:
 #directory.dummy <- "/Users/Dylan/Desktop/git_locals/StatisticsForBigData-/eyemovement_data/BioEye2015_DevSets/RAN_30min_dv"
+random_files <- "/Users/mavezsinghdabas/StatisticsForBigData-/eyemovement_data/BioEye2015_DevSets/RAN_30min_dv"
+reading_files <- "/Users/mavezsinghdabas/StatisticsForBigData-/eyemovement_data/BioEye2015_DevSets/TEX_30min_dv"
+
 #On DR's home system:
-random_files <- "/Users/dylanrose/Desktop/StatisticsForBigData-/eyemovement_data/BioEye2015_DevSets/RAN_30min_dv"
-reading_files<- "/Users/dylanrose/Desktop/StatisticsForBigData-/eyemovement_data/BioEye2015_DevSets/TEX_30min_dv"
+#random_files <- "/Users/dylanrose/Desktop/StatisticsForBigData-/eyemovement_data/BioEye2015_DevSets/RAN_30min_dv"
+#reading_files<- "/Users/dylanrose/Desktop/StatisticsForBigData-/eyemovement_data/BioEye2015_DevSets/TEX_30min_dv"
 
 #Get all the names in the data folder
 random_files_list<-list.files(random_files,full.names=TRUE)
@@ -149,3 +152,4 @@ reading_eyemovement_data_list<-lapply(reading_files_list,final_wrapper)
 reading_eyemovement_output<-as.data.frame(do.call(rbind,reading_eyemovement_data_list))
 condition<-rep("reading",length(random_eyemovement_output$V1))
 reading_eyemovement_output<-cbind(reading_eyemovement_output,condition)
+
