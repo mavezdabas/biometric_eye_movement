@@ -3,28 +3,30 @@ install.packages("CircStats")
 install.packages("saccades")
 library(CircStats)
 library(saccades)
+library(plyr)
 library(dplyr)
 
 # This is the path of the files in the system
 # This value will change depending upon system to system.
 #directory.dummy <- "/Users/mavezsinghdabas/StatisticsForBigData-/eyemovement_data/BioEye2015_DevSets/RAN_30min_dv"
 
-#On DR's system:
-directory.dummy <- "/Users/Dylan/Desktop/git_locals/StatisticsForBigData-/eyemovement_data/BioEye2015_DevSets/RAN_30min_dv"
+#On DR's work system:
+#directory.dummy <- "/Users/Dylan/Desktop/git_locals/StatisticsForBigData-/eyemovement_data/BioEye2015_DevSets/RAN_30min_dv"
+#On DR's home system:
+directory.dummy <- "/Users/dylanrose/Desktop/StatisticsForBigData-/eyemovement_data/BioEye2015_DevSets/RAN_30min_dv"
 
 #Get all the names in the data folder
 files_list<-list.files(directory.dummy,full.names=TRUE)
 
-
 #Define a function to parse the name of text files of data and return subject/trial/condition information
 #from the filename.
-subject_information<-function(text_file){
-  split_name <- unlist(strsplit(text_file,"_"))
-  subject <- split_name[7]
-  trial_num <- substr(split_name[8],1,1)
-  subject_trial_info<-c(subject,trial_num)
-  return(subject_trial_info)
-}
+#subject_information<-function(text_file){
+#  split_name <- unlist(strsplit(text_file,"_"))
+#  subject <- split_name[6]
+#  trial_num <- substr(split_name[7],1,1)
+#  subject_trial_info<-c(subject,trial_num)
+#  return(subject_trial_info)
+#}
 
 #Define a function that will parse a table of eye movement position data and identify saccades.
 detect.saccades <- function(samples, lambda, smooth.saccades) {
@@ -111,7 +113,7 @@ coordinate_transformation_origin_recentering<-function(data_frame){
 
 #A wrapper function that calls all functions defined to this point on a single text file and returns eye movement data
 preprocessing_wrapper<-function(text_file){
-  subject_trial_info<-subject_information(text_file)
+  #subject_trial_info<-subject_information(text_file)
   cleaned_data<-data_load_and_cleanup(text_file)
   cleaned_transformed_data<-coordinate_transformation_origin_recentering(cleaned_data)
   return(cleaned_transformed_data)
@@ -120,16 +122,23 @@ preprocessing_wrapper<-function(text_file){
 #Takes cleaned/pre-processed data and returns eye movement data sets
 eyemovement_wrapper<-function(cleaned_transformed_data){
   fixation_data<-detect.fixations(cleaned_transformed_data)
-  saccade_data<-detect.saccades(cleaned_transformed_data,lambda=15,smooth.saccades = FALSE)
-  return(list(fixation_data,saccade_data))
+  fixation_data_summary<-calculate.summary(fixation_data)
+  eyemovement_means<-as.numeric((fixation_data_summary[,1]))
+  eyemovement_sd<-as.numeric((fixation_data_summary[,2]))
+  fixation_data_summary<-c(eyemovement_means,eyemovement_sd)
+  #saccade_data<-detect.saccades(cleaned_transformed_data,lambda=15,smooth.saccades = FALSE)
+  return(fixation_data_summary)
 }
 
 #Final wrapper; contains all functions previously defined -- intended to be passed to an APPLY function
 final_wrapper<-function(text_file){
-  subject_info<-subject_information(text_file)
+  #subject_info<-subject_information(text_file)
   cleaned_transformed_data<-preprocessing_wrapper(text_file)
   eyemovement_data<-eyemovement_wrapper(cleaned_transformed_data)
-  output<-list(subject_info,eyemovement_data)
+  return(eyemovement_data)
 }
+
 ####With these functions defined, generate the actual data for the experiment using a faster APPLY method on all of the potential data files######
+system.time(eyemovement_data_list<-lapply(files_list,final_wrapper))
+output<-as.data.frame(do.call(rbind,eyemovement_data_list))
 
