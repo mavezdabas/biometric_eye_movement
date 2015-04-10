@@ -11,9 +11,9 @@ library(dplyr)
 #directory.dummy <- "/Users/mavezsinghdabas/StatisticsForBigData-/eyemovement_data/BioEye2015_DevSets/RAN_30min_dv"
 
 #On DR's work system:
-#directory.dummy <- "/Users/Dylan/Desktop/git_locals/StatisticsForBigData-/eyemovement_data/BioEye2015_DevSets/RAN_30min_dv"
-random_files <- "/Users/mavezsinghdabas/StatisticsForBigData-/eyemovement_data/BioEye2015_DevSets/RAN_30min_dv"
-reading_files <- "/Users/mavezsinghdabas/StatisticsForBigData-/eyemovement_data/BioEye2015_DevSets/TEX_30min_dv"
+### DONT CHANGE THESE X_X ##
+random_files <- "/Users/Dylan/Desktop/git_locals/StatisticsForBigData-/eyemovement_data/BioEye2015_DevSets/RAN_30min_dv"
+reading_files <- "/Users/Dylan/Desktop/git_locals/StatisticsForBigData-/eyemovement_data/BioEye2015_DevSets/TEX_30min_dv"
 
 #On DR's home system:
 #random_files <- "/Users/dylanrose/Desktop/StatisticsForBigData-/eyemovement_data/BioEye2015_DevSets/RAN_30min_dv"
@@ -153,3 +153,22 @@ reading_eyemovement_output<-as.data.frame(do.call(rbind,reading_eyemovement_data
 condition<-rep("reading",length(random_eyemovement_output$V1))
 reading_eyemovement_output<-cbind(reading_eyemovement_output,condition)
 
+#Cleanup junk variables:
+random_eyemovement_output<-select(random_eyemovement_output,V3,V4,V5,V6,V7,V8,condition)
+reading_eyemovement_output<-select(reading_eyemovement_output,V3,V4,V5,V6,V7,V8,condition)
+
+####Generate factors for mixed model analysis:
+#Trial data:
+trial_num<-rep(seq(1:2),153)
+#Subject id:
+subj_id<-rep(seq(1:153),each=2)
+random_eyemovement_output<-cbind(random_eyemovement_output,as.factor(subj_id),trial_num)
+reading_eyemovement_output<-cbind(reading_eyemovement_output,as.factor(subj_id),trial_num)
+
+####Cleanup variable names
+names(random_eyemovement_output)<-c("num_fixations","mean_fix_dur","disp_horz","disp_vert","peak_vel_horz","peak_vel_vert","condition","subj_id","trial_num")
+names(reading_eyemovement_output)<-c("num_fixations","mean_fix_dur","disp_horz","disp_vert","peak_vel_horz","peak_vel_vert","condition","subj_id","trial_num")
+
+####Merge data set and write-out:
+full_eyemovement_set<-rbind(random_eyemovement_output,reading_eyemovement_output)
+write.csv(full_eyemovement_set,"full_eyemovement_set.csv",row.names=FALSE)
