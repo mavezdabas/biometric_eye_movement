@@ -1,6 +1,6 @@
-#Create a variable of predicted classes from the test set based on the random parameter model
-rand_predicted<-round(predict(model_rand,test_set,type="response"))
-rand_predicted_continuous<-predict(model_rand,test_set,type="response")#libraries:
+
+
+##libraries:
 library(gdata)
 library(SDMTools)
 library(ROCR)
@@ -59,8 +59,7 @@ norand_pred<-prediction(norand_predicted_continuous,observed)
 norand_perf<-performance(norand_pred,"tpr","fpr")
 
 #Norand model x&y values
-rand_xvalues<-unlist(rand_perf@x.values)
-rand_yvalues<-unlist(rand_perf@y.values)
+
 
 plot(rand_perf)
 lines(rand_xvalues,rand_yvalues)
@@ -70,7 +69,11 @@ confusion.matrix(observed,rand_predicted,threshold=0.95)
 
 #Random effects
 model_rand<-glmer(condition~cent_mean_fix+cent_disp_horz+cent_disp_vert+cent_peak_vel_horz+cent_peak_vel_vert+trial_num+(1|subj_id),data=training_set,family=binomial,control = glmerControl(optimizer = "bobyqa"),nAGQ = 10)
-
+#Create a variable of predicted classes from the test set based on the random parameter model
+rand_predicted<-round(predict(model_rand,test_set,type="response"))
+rand_predicted_continuous<-predict(model_rand,test_set,type="response")
 rand_pred<-prediction(rand_predicted_continuous,observed)
 rand_perf<-performance(rand_pred,"tpr","fpr")
+rand_xvalues<-unlist(rand_perf@x.values)
+rand_yvalues<-unlist(rand_perf@y.values)
 
