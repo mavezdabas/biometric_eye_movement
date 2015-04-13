@@ -215,13 +215,11 @@ library(lme4)
 
 # Fitting the Model which we got after fittng the lasso model into 
 # the dataset
-effect_training_glmer <- glmer(Condition ~ Fixation.Per.Trial +
+effect_training_glmer <- glmer(Condition ~
                                  Duration.of.Fixation + 
                                  Horizontal.Dispersion + 
                                  Vertical.Dispersion + 
                                  Velocity.Horizontal+
-                                 Trial.Number+
-                                 #(1 | SubjectID)+
                                  (1 | Trial.Number : SubjectID),data = effectTrainingScale,family = binomial,
                                control = glmerControl(optimizer = "bobyqa"),
                                nAGQ = 10)
