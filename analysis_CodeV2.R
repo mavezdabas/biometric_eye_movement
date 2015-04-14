@@ -167,71 +167,71 @@ lines(x_lasso,y_lasso)
 #============================RANDOM MIXED EFFECT===============================
 
 # Reading the file from the full_eyemovement_set.csv file 
-effectEyeMovements <- read.csv(file = "full_eyemovement_set.csv")
-head(effectEyeMovements)
-
-# Renaming the Columns
-effectEyeMovements <- rename(effectEyeMovements,
-                             "Fixation.Per.Trial" = num_fixations,
-                             "Duration.of.Fixation" = mean_fix_dur,
-                             "Horizontal.Dispersion" = disp_horz,
-                             "Vertical.Dispersion" = disp_vert,
-                             "Velocity.Horizontal" = peak_vel_horz,
-                             "Velocity.Vertical" = peak_vel_vert,
-                             "Condition" = condition,
-                             "SubjectID" = subj_id,
-                             "Trial.Number" = trial_num)
-head(effectEyeMovements)
-
-# Center the variables this is needed for and create a new data frame
-effectEyeMovements<- mutate(effectEyeMovements,
-                            Fixation.Per.Trial = center_scale(Fixation.Per.Trial),
-                            Duration.of.Fixation = center_scale(Duration.of.Fixation),
-                            Horizontal.Dispersion = center_scale(Horizontal.Dispersion),
-                            Vertical.Dispersion = center_scale(Vertical.Dispersion),
-                            Velocity.Horizontal = center_scale(Velocity.Horizontal),
-                            Velocity.Vertical = center_scale(Velocity.Vertical))
-head(effectEyeMovements)
-# Change the levels of the conditins as Random  = 0, Reading = 1
-effectEyeMovements$Condition <- ifelse(effectEyeMovements$Condition == "random",0,1)
-head(effectEyeMovements)
-
-# Now the task is to divide the data set into training set and the test set
-# which is done by the function defined previously in Cleaning.R
-# Training 80% and 20% to test and from the function "splitdata" 
-# defined above
-effectEyeWholeData <- splitdata(effectEyeMovements,123)
-effectTrainingScale <- effectEyeWholeData$trainset
-effectTestScale <- effectEyeWholeData$testset
-head(effectTrainingScale)
-head(effectTestScale)
-
-# Writing the Training and Test into .csv Files for random effect
-write.csv(effectTrainingScale,file = "TrainingEye_Effect.csv",row.names = FALSE)
-write.csv(eyeTestScale,file = "TestEye_Effect.csv",row.names = FALSE)
-
-install.packages("lme4")
-library(lme4)
-
-# Fitting the Model which we got after fittng the lasso model into 
-# the dataset
-effect_training_glmer <- glmer(Condition ~
-                                 Duration.of.Fixation + 
-                                 Horizontal.Dispersion + 
-                                 Vertical.Dispersion + 
-                                 Velocity.Horizontal+
-                                 (1 | Trial.Number : SubjectID),data = effectTrainingScale,family = binomial,
-                               control = glmerControl(optimizer = "bobyqa"),
-                               nAGQ = 10)
-
+# effectEyeMovements <- read.csv(file = "full_eyemovement_set.csv")
+# head(effectEyeMovements)
 # 
-# #rand_predicted<-round(predict(model_rand,test_set,type="response"))
-# #rand_predicted_continuous<-predict(model_rand,test_set,type="response")#libraries
+# # Renaming the Columns
+# effectEyeMovements <- rename(effectEyeMovements,
+#                              "Fixation.Per.Trial" = num_fixations,
+#                              "Duration.of.Fixation" = mean_fix_dur,
+#                              "Horizontal.Dispersion" = disp_horz,
+#                              "Vertical.Dispersion" = disp_vert,
+#                              "Velocity.Horizontal" = peak_vel_horz,
+#                              "Velocity.Vertical" = peak_vel_vert,
+#                              "Condition" = condition,
+#                              "SubjectID" = subj_id,
+#                              "Trial.Number" = trial_num)
+# head(effectEyeMovements)
 # 
+# # Center the variables this is needed for and create a new data frame
+# effectEyeMovements<- mutate(effectEyeMovements,
+#                             Fixation.Per.Trial = center_scale(Fixation.Per.Trial),
+#                             Duration.of.Fixation = center_scale(Duration.of.Fixation),
+#                             Horizontal.Dispersion = center_scale(Horizontal.Dispersion),
+#                             Vertical.Dispersion = center_scale(Vertical.Dispersion),
+#                             Velocity.Horizontal = center_scale(Velocity.Horizontal),
+#                             Velocity.Vertical = center_scale(Velocity.Vertical))
+# head(effectEyeMovements)
+# # Change the levels of the conditins as Random  = 0, Reading = 1
+# effectEyeMovements$Condition <- ifelse(effectEyeMovements$Condition == "random",0,1)
+# head(effectEyeMovements)
 # 
+# # Now the task is to divide the data set into training set and the test set
+# # which is done by the function defined previously in Cleaning.R
+# # Training 80% and 20% to test and from the function "splitdata" 
+# # defined above
+# effectEyeWholeData <- splitdata(effectEyeMovements,123)
+# effectTrainingScale <- effectEyeWholeData$trainset
+# effectTestScale <- effectEyeWholeData$testset
+# head(effectTrainingScale)
+# head(effectTestScale)
 # 
-# rand_pred<-prediction(rand_predicted_continuous,observed)
-# rand_perf<-performance(rand_pred,"tpr","fpr")
+# # Writing the Training and Test into .csv Files for random effect
+# write.csv(effectTrainingScale,file = "TrainingEye_Effect.csv",row.names = FALSE)
+# write.csv(eyeTestScale,file = "TestEye_Effect.csv",row.names = FALSE)
+# 
+# install.packages("lme4")
+# library(lme4)
+# 
+# # Fitting the Model which we got after fittng the lasso model into 
+# # the dataset
+# effect_training_glmer <- glmer(Condition ~
+#                                  Duration.of.Fixation + 
+#                                  Horizontal.Dispersion + 
+#                                  Vertical.Dispersion + 
+#                                  Velocity.Horizontal+
+#                                  (1 | Trial.Number : SubjectID),data = effectTrainingScale,family = binomial,
+#                                control = glmerControl(optimizer = "bobyqa"),
+#                                nAGQ = 10)
+# 
+# # 
+# # #rand_predicted<-round(predict(model_rand,test_set,type="response"))
+# # #rand_predicted_continuous<-predict(model_rand,test_set,type="response")#libraries
+# # 
+# # 
+# # 
+# # rand_pred<-prediction(rand_predicted_continuous,observed)
+# # rand_perf<-performance(rand_pred,"tpr","fpr")
 
 
 
