@@ -1,22 +1,20 @@
-library(gdata)
 install.packages("SDMTools")
+install.packages("lars")
+library(gdata)
 library(SDMTools)
 library(ROCR)
 library(bestglm)
-install.packages("lars")
 library(lars)
+library(dplyr)
 #====================GETTING FILE FROM THE CSV FILE====================
 eyeMovements <- read.csv(file = "full_eyemovement_set.csv")
 head(eyeMovements)
 #====================DROPPING THE FIXATION PARAMETER====================
 # This is use to remove the num_fixations column form the table as
 # num_fixations are highly correlated 
-library(dplyr)
-# Function: select:dplyr
-# Input: The data set
-# Output: Returns the data set but with the removed columns given in the command
-#         which in our case is the num_fixations
-eyeMovements <- select(.data = eyeMovements, -(num_fixations))
+
+#Just use NULL instead of dplyr, which throws an error -DR
+eyeMovements$num_fixations <- NULL
 head(eyeMovements)
 #====================CHANGING THE COLUMN NAMES====================
 # Used to change the column names as per the our preference
@@ -32,7 +30,7 @@ head(eyeMovements)
 # Function: rename:dplyr
 # Input: The data set
 # Output: The same data set renamed columns
-eyeMovements <- rename(eyeMovements,
+eyeMovements <- dplyr::rename(eyeMovements,
                        "Duration.of.Fixation" = mean_fix_dur,
                        "Horizontal.Dispersion" = disp_horz,
                        "Vertical.Dispersion" = disp_vert,
@@ -158,7 +156,11 @@ eyeMovements_3.GLM.Summary
 eyeMovements_3.GLM$aic
 # Plot the glm object to finf the potential outliers and influential
 # observations
-plot(eyeMovements_3.GLM)
+png("outlier_detection.png")
+par(mfrow=c(2,2))
+for (i in 1:4)
+  plot(eyeMovements_3.GLM,which=i)
+dev.off()
 
 ##=========================FINDING THE OUTLIER====================== 
 # As we can see after plotting the values we come to know that the
@@ -201,7 +203,11 @@ eyeMovements_4.GLM.Summary <- summary(eyeMovements_4.GLM)
 eyeMovements_4.GLM$aic
 # Plotting the glm object to take into account of potential outliers 
 # which could be influential observations
-plot(eyeMovements_4.GLM)
+png("outliers_removed.png")
+par(mfrow=c(2,2))
+for (i in 1:4)
+  plot(eyeMovements_4.GLM,which=i)
+dev.off()
 # As we can see that we have a considerable change in the 
 # coefficiens and a decrease in the AIC values 
 # hence the rows were potential influential observation.
