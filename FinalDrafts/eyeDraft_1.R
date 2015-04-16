@@ -1,17 +1,19 @@
-library(gdata)
+install.packages("lars")
 install.packages("SDMTools")
+library(gdata)
 library(SDMTools)
 library(ROCR)
 library(bestglm)
-install.packages("lars")
 library(lars)
+library(dplyr)
+library(corrgram)
+library(ggplot2)
 #====================GETTING FILE FROM THE CSV FILE====================
 eyeMovements <- read.csv(file = "full_eyemovement_set.csv")
 head(eyeMovements)
 #====================DROPPING THE FIXATION PARAMETER====================
 # This is use to remove the num_fixations column form the table as
 # num_fixations are highly correlated 
-library(dplyr)
 # Function: select:dplyr
 # Input: The data set
 # Output: Returns the data set but with the removed columns given in the command
@@ -207,6 +209,11 @@ plot(eyeMovements_4.GLM)
 # hence the rows were potential influential observation.
 # THUS now we will work on eyeMovements_4
 
+##======================Corrgram to Demonstrate Persistant Predictor Multi-Collinearity======================
+png("eyemovements_4_corrgram.png")
+corrgram(eyeMovements_4)
+dev.off()
+
 ##======================DIVIDING THE TRAINING AND TEST SET======================
 # Now the task is to divide the data set into training set and the test set
 # which is done by the function defined previously in Cleaning.R
@@ -348,8 +355,11 @@ performance_lasso_training
 x.lasso <- unlist(performance_lasso_training@x.values)
 y.lasso <- unlist(performance_lasso_training@y.values)
 
+#Save this plot
+png("compare_roc_performance_iteration1.png")
 plot(performance_lasso_training)
 lines(x,y,col = "red")
+dev.off()
 
 
 #============================CROSS VALIDATION===============================
@@ -447,13 +457,69 @@ mean(aicValueLasso)
 mean(aucValueLasso)
 
 
+##Plotting & Bootstrap T testing for cross-validated data##
+
+#Define multiplot function
+multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
+  require(grid)
+  
+  # Make a list from the ... arguments and plotlist
+  plots <- c(list(...), plotlist)
+  
+  numPlots = length(plots)
+  
+  # If layout is NULL, then use 'cols' to determine layout
+  if (is.null(layout)) {
+    # Make the panel
+    # ncol: Number of columns of plots
+    # nrow: Number of rows needed, calculated from # of cols
+    layout <- matrix(seq(1, cols * ceiling(numPlots/cols)),
+                     ncol = cols, nrow = ceiling(numPlots/cols))
+  }
+  
+  if (numPlots==1) {
+    print(plots[[1]])
+    
+  } else {
+    # Set up the page
+    grid.newpage()
+    pushViewport(viewport(layout = grid.layout(nrow(layout), ncol(layout))))
+    
+    # Make each plot, in the correct location
+    for (i in 1:numPlots) {
+      # Get the i,j matrix positions of the regions that contain this subplot
+      matchidx <- as.data.frame(which(layout == i, arr.ind = TRUE))
+      
+      print(plots[[i]], vp = viewport(layout.pos.row = matchidx$row,
+                                      layout.pos.col = matchidx$col))
+    }
+  }
+}
 
 
+#Convert the aic and auc data sets to lists, not matrices.
+full<-rep("full",801)
+lasso<-rep("lasso",801)
+group<-as.factor(rbind(full,lasso))
+aic_data<-rbind(aicValue,aicValueLasso)
+auc_data<-rbind(aucValue,aucValueLasso)
+
+aic_data_frame<-data.frame(aic_data,group)
+auc_data_frame<-data.frame(auc_data,group)
+
+#Plot of superimposed histograms for aic values
+aic_plot<-ggplot(aic_data_frame,aes(x=aic_data,fill=group))+geom_histogram(alpha=.5,position="identity")+labs(title="AIC Data by Model Type",x="AIC Values")+theme_classic()
+ggsave("aic_bygroup.png",width=4,height=4)
+#Plot of superimposed histograms for auc values
+auc_plot<-ggplot(auc_data_frame,aes(x=auc_data,fill=group))+geom_histogram(alpha=.5,position="identity")+labs(title="AUC Data by Model Type",x="AUC Values")+theme_classic()
+ggsave("auc_bygroup.png",width=4,height=4)
 
 
-
-
-
+##Paired T for Mean Comparison of AIC and AUC Values##
+#AIC values
+t.test(aicValue,aicValueLasso,paired=TRUE)
+#AUC values
+t.test(aucValue,aucValueLasso,paired=TRUE)
 
 
 
