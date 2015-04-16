@@ -1,3 +1,5 @@
+#==================Installing the libraries===========================
+# Installing these files prior the execution of the project.
 library(gdata)
 install.packages("SDMTools")
 library(SDMTools)
@@ -6,16 +8,20 @@ library(bestglm)
 install.packages("lars")
 library(lars)
 #====================GETTING FILE FROM THE CSV FILE====================
+# Used to read the files from the data store after cleaning and 
+# restructing the data.
 eyeMovements <- read.csv(file = "full_eyemovement_set.csv")
 head(eyeMovements)
 #====================DROPPING THE FIXATION PARAMETER====================
+# We have driopped the fixation parameter from the data set.
 # This is use to remove the num_fixations column form the table as
 # num_fixations are highly correlated 
 library(dplyr)
 # Function: select:dplyr
-# Input: The data set
-# Output: Returns the data set but with the removed columns given in the command
-#         which in our case is the num_fixations
+# Input:  The data set and the column name which we want to remove 
+#         followed by the -ve sign.
+# Output: Returns the data set but with the removed columns given in 
+#         the command which in our case is the num_fixations
 eyeMovements <- select(.data = eyeMovements, -(num_fixations))
 head(eyeMovements)
 #====================CHANGING THE COLUMN NAMES====================
@@ -30,8 +36,9 @@ head(eyeMovements)
 # "SubjectID" = subj_id,
 # "Trial.Number" = trial_num
 # Function: rename:dplyr
-# Input: The data set
-# Output: The same data set renamed columns
+# Input: The data set and the columns and the new column names
+#        along with the names of the riginal columns.
+# Output: The same data set renamed columns.
 eyeMovements <- rename(eyeMovements,
                        "Duration.of.Fixation" = mean_fix_dur,
                        "Horizontal.Dispersion" = disp_horz,
@@ -44,7 +51,7 @@ eyeMovements <- rename(eyeMovements,
 head(eyeMovements)
 #====================MEAN CENTERING FUNCTION====================
 # Function: center_scale:mean centering function using scale()
-# Input: Values in term of Real Numbers List
+# Input: Values in Real Numbers List
 # Output: Real Number for each columns
 
 center_scale <- function(x) {
@@ -52,8 +59,9 @@ center_scale <- function(x) {
 }
 #====================CREATE DATA AFTER CENTER FUNCTION=============
 # Function: mutate:dplyr
-# Input: The data frame and the columns to be changes
-# Output: The data frame but after applying the function on the specified columns.
+# Input:  The data frame and the columns to be changed.
+# Output: The data frame but after applying the function(center_scale)
+#         on the specified columns. 
 #         (Condition SubjectID Trial.Number) not these columns
 
 eyeMovements<- mutate(eyeMovements,
@@ -63,21 +71,21 @@ eyeMovements<- mutate(eyeMovements,
                       Velocity.Horizontal = center_scale(Velocity.Horizontal),
                       Velocity.Vertical = center_scale(Velocity.Vertical))
 head(eyeMovements)
-#====================CHANGING RANDOM = 0 and READING = 1=============
-# Change the levels of the conditins as Random  = 0, Reading = 1
+#==============CHANGING RANDOM = 0 and READING = 1===================
+# Change the levels of the condition column as Random  = 0, Reading = 1
 eyeMovements$Condition <- ifelse(eyeMovements$Condition == "random",0,1)
 head(eyeMovements,n = 10)
 eyeMovements_2 <- eyeMovements
 #====================DELETING SubjectID Trial.Number=============
 # Deleting the Subject ID and the trial Number as we are not taking
-# these two columns into our consideration
+# these two columns into the model.
 eyeMovements_2 <- select(eyeMovements_2,-(SubjectID:Trial.Number))
 head(eyeMovements_2)
 #=========================COMBINING THE ROWS==========================
 # Creating a New Data Frame with eliminating the rows by subtracting
 # consecutive rows.
-# As Discussed we need to have a single row for each subject.
-# we are considering only one trial in the data set
+# As discussed we need to have a single row for each subject.
+# i.e we are cosnidering one trial per subject.
 
 # This will tell us the length of the dataframe
 eyeMovements_2Length <- nrow(eyeMovements_2)
@@ -87,8 +95,8 @@ eyeMovements_2Length
 realLenth <-seq(1,eyeMovements_2Length,by = 2)
 realLenth
 
-# Creating empty Character Vectors of each columsn which we need in
-# the data frame
+# Creating empty Character Vectors of each column which we need in
+# the new data frame
 Duration.of.Fixation <- c()
 Horizontal.Dispersion <- c()
 Vertical.Dispersion <- c()
@@ -100,6 +108,7 @@ Velocity.Vertical <- c()
 eyeMovements_3 <- data.frame("Condition"= eyeMovements_2$Condition[realLenth])
 eyeMovements_3
 
+#================FUNCTION GENERATING THE NEW DATASET=============
 # Function: Subtracting each row which are assigned to a perticular
 #           subject ID
 # Input: The Rows which are needed to be used 
@@ -114,22 +123,22 @@ for( i in realLenth){
 }
 
 # Creating new Columns in the eyeMovement_3 data frame with the 
-# column names as respectively
+# column names as respectively.
 eyeMovements_3$Duration.of.Fixation <- Duration.of.Fixation
 eyeMovements_3$Horizontal.Dispersion <- Horizontal.Dispersion
 eyeMovements_3$Vertical.Dispersion <- Vertical.Dispersion
 eyeMovements_3$Velocity.Horizontal <- Velocity.Horizontal
 eyeMovements_3$Velocity.Vertical <- Velocity.Vertical
 
-## eyeMovements_3 will our final set of values which we will work on now
+## eyeMovements_3 will be our final set of values which we will work.
 head(eyeMovements_3)
-## Writing the files on a file.
+## Writing the data on the file eyeMovement_3.csv.
 write.csv(eyeMovements_3,file = "eyeMovement_3.csv",row.names = FALSE)
 
 #=========================FIT THE GLM ON FULL MODEL======================
 # Function: glm
-# Input: The gilm function will take the data frame which we plan 
-#        to get the glm function out from.
+# Input: The glm function will take the data frame and perform 
+#        general linear model.
 # Output: The model after fitting the glm model using the
 #         family = binomial()
 #         data = eyeMovements_3
@@ -142,21 +151,22 @@ eyeMovements_3.GLM <- glm(Condition ~ Duration.of.Fixation +
                             Horizontal.Dispersion + 
                             Vertical.Dispersion + 
                             Velocity.Horizontal + 
-                            Velocity.Vertical,data = eyeMovements_3,family = binomial())
-# Getting the Coefficients  
+                            Velocity.Vertical,data = eyeMovements_3,
+                          family = binomial())
+# Extracting the Coefficients  
 eyeMovements_3.GLM$coefficients
-# Getting the Residuals
+# Extracting the Residuals
 eyeMovements_3.GLM$residuals
-# Getting the Fitted values
+# Extracting the Fitted values
 eyeMovements_3.GLM$fitted.values
-# Getting the Effects
+# Extracting the Effects
 eyeMovements_3.GLM$effects
-# Saving the summary of the glm object
+# Saving summary of the glm object
 eyeMovements_3.GLM.Summary <- summary(eyeMovements_3.GLM)
 eyeMovements_3.GLM.Summary
 # Getting the AIC value of the model
 eyeMovements_3.GLM$aic
-# Plot the glm object to finf the potential outliers and influential
+# Plot the glm object to find the potential outliers and influential
 # observations
 plot(eyeMovements_3.GLM)
 
@@ -164,16 +174,16 @@ plot(eyeMovements_3.GLM)
 # As we can see after plotting the values we come to know that the
 # row 214 and 79 is an outlier and could be a Influential Observation
 
-# Now we will remove the row and againg fit the model and compare the 
+# Now we will remove the row and fit the model and compare the 
 # parameters
 
-# Creating a new data frame with elininating the rows 79,214 
+# Creating a new data frame with eliminating the rows 79,214 
 eyeMovements_4 <- eyeMovements_3[-c(79,214),]
 head(eyeMovements_4)
 
 # Function: glm
 # Input: The glm function will take the data frame after eliminating
-#        the rows to get the glm function out from.
+#        and perform general linear model.
 # Output: The model after fitting the glm model using the
 #         family = binomial()
 #         data = eyeMovements_4
@@ -187,13 +197,13 @@ eyeMovements_4.GLM <- glm(Condition ~ Duration.of.Fixation +
                             Vertical.Dispersion + 
                             Velocity.Horizontal + 
                             Velocity.Vertical,data = eyeMovements_4,family = binomial())
-# Getting the Coefficients
+# Extracting the Coefficients
 eyeMovements_4.GLM$coefficients
-# Getting the Residuals
+# Extracting the Residuals
 eyeMovements_4.GLM$residuals
-# Getting the Fitted values
+# Extracting the Fitted values
 eyeMovements_4.GLM$fitted.values
-# Getting the Effects
+# Extracting the Effects
 eyeMovements_4.GLM$effects
 # saving the summary of the glm object
 eyeMovements_4.GLM.Summary <- summary(eyeMovements_4.GLM)
@@ -205,7 +215,8 @@ plot(eyeMovements_4.GLM)
 # As we can see that we have a considerable change in the 
 # coefficiens and a decrease in the AIC values 
 # hence the rows were potential influential observation.
-# THUS now we will work on eyeMovements_4
+# THUS now we will work on eyeMovements_4 in which we dont have the
+# influential onservation. 
 
 ##======================DIVIDING THE TRAINING AND TEST SET======================
 # Now the task is to divide the data set into training set and the test set
@@ -238,7 +249,8 @@ write.csv(eyeTest4,file = "TestEye_4.csv",row.names = FALSE)
 
 ##======================FIT THE GLM ON THE TRAINING SET======================
 # Function: glm
-# Input: The glm function will take the training dataframe.
+# Input: The glm function will take the training dataframe and perform
+#        genaralized linear model.
 # Output: The model after fitting the glm model using the
 #         family = binomial()
 #         data = eyeTraining4
@@ -270,7 +282,7 @@ plot(training.GLM)
 ##======================PREDICTING THE VALUES IN TEST SET======================
 # Predicting the values in the Test data
 # Create a variable of predicted classes from the test set based on
-#   the fixed parameter model
+# the fixed parameter model.
 predict_training_glm <- round(predict(training.GLM,eyeTest4,type = "response"))
 str(predict_training_glm)
 predict_training_glm_continous <- predict(training.GLM,eyeTest4,type = "response")
@@ -445,31 +457,5 @@ mean(aucValue)
 mean(aicValueLasso)
 # head(aucValueLasso)
 mean(aucValueLasso)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
